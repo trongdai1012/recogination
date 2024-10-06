@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
     height: height,
   },
   txtNotify: {
-    marginTop: Platform.OS === 'ios' ? sizes._485 : sizes._450,
+    marginTop: Platform.OS === 'ios' ? sizes._515 : sizes._480,
     textAlign: 'center',
     fontSize: 16,
     lineHeight: 24,
