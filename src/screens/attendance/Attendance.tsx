@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useRef, useState} from 'react';
 import {
   StyleSheet,
   View,
@@ -8,7 +8,6 @@ import {
   SafeAreaView,
   FlatList,
   Image,
-  Alert,
 } from 'react-native';
 import {Face, RNCamera} from 'react-native-camera';
 import FaceDetected from '../../component/FaceDetected';
@@ -23,6 +22,9 @@ import {
 import {generateUUID} from '../../utils';
 import {submitRecoginationFace} from '../../api/submitRecoginationFace';
 import {useAuth} from '../../context/AuthContext';
+import {useLoading} from '../../context/Loading';
+import {showToast} from '../../services/showToast';
+import dayjs from 'dayjs';
 const {width, height} = Dimensions.get('window');
 
 type ImageInfo = {
@@ -30,6 +32,7 @@ type ImageInfo = {
 };
 
 export default function Attendance() {
+  const {isLoading, setLoading} = useLoading();
   const cameraRef: any = useRef();
   const [faceInfo, setFaceInfo] = useState<Face | undefined>();
 
@@ -40,34 +43,12 @@ export default function Attendance() {
   const isEnd = useRef<boolean>(false);
   const {tenant} = useAuth();
 
-  const handleSubmit = useCallback(
-    async (uri: string) => {
-      const formData = new FormData();
-
-      const randomId = generateUUID();
-      const file = {
-        uri: uri,
-        name: `image_${randomId}.jpg`,
-        type: 'image/jpeg',
-      };
-      formData.append('file', file);
-      formData.append('tenant', tenant);
-
-      console.log('==formData.getAll()==', formData.getAll());
-
-      const response = await submitRecoginationFace(formData);
-      if (response.status === 200) {
-        Alert.alert('Thành công', 'Face images submitted successfully!');
-      } else {
-        throw new Error('Failed to submit images');
-      }
-    },
-    [tenant],
-  );
-
   const handleTakePicture = useCallback(
     async (faceData: Face) => {
       try {
+        if (isLoading) {
+          return;
+        }
         const options = {
           width: 1080,
           height: 1440,
@@ -77,6 +58,7 @@ export default function Attendance() {
           mirrorImage: true,
           base64: true,
         };
+        setLoading(true);
         const data = await cameraRef?.current?.takePictureAsync(options);
         const initValue = 1080 / width;
         const centerPoint = {
@@ -110,20 +92,38 @@ export default function Attendance() {
             },
           });
 
-          await handleSubmit(imageCrop.uri);
-          console.log('==pass==', imageCrop.uri);
+          const formData = new FormData();
 
-          imageDetectFace.current.unshift({
+          const randomId = generateUUID();
+          formData.append('file', {
             uri: imageCrop.uri,
+            name: `image_${randomId}.jpg`,
+            type: 'image/jpeg',
           });
+          formData.append('tenant', tenant);
+
+          setLoading(true);
+          const response = await submitRecoginationFace(formData);
+          if (response?.result?.username) {
+            showToast(
+              'success',
+              `${response?.result?.fullName}, ${dayjs().format(
+                'YYYY-MM-DD HH:mm:ss',
+              )}`,
+            );
+          } else {
+            showToast('error', 'Không thể nhận diện.');
+          }
+          setLoading(false);
         }
       } catch (error) {
-        Alert.alert('Lỗi', 'Chấm công thất bại.');
-        console.error('Error submitting images:', error);
+        setLoading(false);
+        console.log('Error submitting images:', error);
+        showToast('error', 'Chấm công thất bại.');
       }
       isPending.current = false;
     },
-    [handleSubmit],
+    [isLoading, setLoading, tenant],
   );
 
   const handleTakePictureStep = useCallback(
@@ -139,6 +139,9 @@ export default function Attendance() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleFacesDetected = useCallback(
     _.throttle((faces: Face) => {
+      if (isLoading) {
+        return;
+      }
       const faceValid = checkFaceValidSigin(faces);
       isValid.current = faceValid;
       if (faceValid) {
@@ -147,7 +150,7 @@ export default function Attendance() {
           handleTakePictureStep(faces);
         }
       }
-    }, 350),
+    }, 1500),
     [],
   );
 

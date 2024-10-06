@@ -6,7 +6,6 @@ import {
   Dimensions,
   Platform,
   SafeAreaView,
-  Alert,
 } from 'react-native';
 import {Face, RNCamera} from 'react-native-camera';
 import FaceDetected from '../../component/FaceDetected';
@@ -18,6 +17,7 @@ import {useIsFocused} from '@react-navigation/native';
 import NavigationService from '../../router/NavigationService';
 import {ScreenName} from '../../router/ScreenName';
 import {checkFaceValidSigUp, checkGestureValid} from './service/detectFace';
+import {showToast} from '../../services/showToast';
 const {width, height} = Dimensions.get('window');
 
 export type GESTURE_STEPS_TYPE = 'FRONT' | 'LEFT' | 'RIGHT' | 'UP' | 'DOWN';
@@ -52,7 +52,7 @@ export default function SignUp({route}: any) {
   const param: SignUpParamType = useMemo(() => {
     const params = route?.params;
     if (!params) {
-      Alert.alert('Thất bại', 'Đầu vào không hợp lệ, vui lòng làm lại các bước!');
+      showToast('error', 'Đầu vào không hợp lệ, vui lòng làm lại các bước.');
       return {};
     }
     return params;
@@ -206,8 +206,8 @@ export default function SignUp({route}: any) {
           }
         }
       } catch (error) {
-        console.error('Error taking picture:', error);
-        Alert.alert('Thất bại', 'Failed to capture the image.');
+        console.log('Error taking picture:', error);
+        showToast('error', 'Trích xuất hình ảnh thất bại, vui lòng thử lại.');
       }
       isPending.current = false;
     },

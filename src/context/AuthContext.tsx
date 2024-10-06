@@ -39,8 +39,6 @@ export const AuthProvider: FC<{children: ReactNode}> = ({children}) => {
     const data = await submitLogin(tenantVal, userName, password);
     setIsLoggedIn(true);
     setTenant(tenantVal);
-    console.log('==data ==', data);
-
     await AsyncStorage.setItem('userToken', data.access_token);
     await AsyncStorage.setItem('tenantStore', tenantVal);
   };

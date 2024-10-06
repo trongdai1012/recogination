@@ -1,4 +1,3 @@
-// NavigationService.js
 let _navigator;
 
 function setTopLevelNavigator(navigatorRef) {

@@ -1,18 +1,29 @@
-import {axiosWithAuth} from './apiClient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {EndpointApiV1} from './endpoint';
+import axios from 'axios';
+import {RegistrationApiResponse} from '../types/registerFace/registerFace';
 
-// Hàm gọi API không cần xác thực
 export const submitRegistrationFace = async (
   formData: FormData,
-): Promise<any> => {
+): Promise<RegistrationApiResponse> => {
   try {
-    const response = await axiosWithAuth.post(
-      EndpointApiV1.RegisterFace,
+    const userToken = await AsyncStorage.getItem('userToken');
+    const tenant = await AsyncStorage.getItem('tenantStore');
+
+    const res = await axios.post(
+      `http://192.168.1.21:8080${EndpointApiV1.RegisterFace}`,
       formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${userToken}`,
+          'X-Tenant': tenant,
+        },
+      },
     );
-    return response.data;
+    return res.data as RegistrationApiResponse;
   } catch (error) {
-    console.error('Error register face data', JSON.stringify(error));
+    console.log('Error register face data', JSON.stringify(error));
     throw error;
   }
 };

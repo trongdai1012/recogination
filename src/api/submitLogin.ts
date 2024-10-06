@@ -12,7 +12,6 @@ export const submitLogin = async (
 
     const response = await axiosWithoutAuth.post(EndpointApiV1.Login, data, {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
         Accept: 'application/json, text/plain, */*',
         Authorization: 'Basic ' + btoa('employee:corona-employee'),
         Origin: 'https://erp.m2m-sol.co.jp',
@@ -24,7 +23,7 @@ export const submitLogin = async (
     });
     return response.data as SubmitLoginResponse;
   } catch (error) {
-    console.error('Error fetching private data Login', JSON.stringify(error));
+    console.log('Error fetching private data Login', JSON.stringify(error));
     throw error;
   }
 };

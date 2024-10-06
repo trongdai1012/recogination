@@ -1,20 +1,11 @@
-import React, {useCallback, useEffect, useRef} from 'react';
-import {
-  StyleSheet,
-  View,
-  ViewStyle,
-  StyleProp,
-  Dimensions,
-  TouchableOpacity,
-  Text,
-  Platform,
-} from 'react-native';
+import React, {useCallback} from 'react';
+import {StyleSheet, View, ViewStyle, StyleProp, Dimensions} from 'react-native';
 import {Circle, Defs, Mask, Rect, Svg} from 'react-native-svg';
 import GestureSvg from '../assets/svg/gesture.svg';
 import SuccessSvg from '../assets/svg/icon_success.svg';
 import {GESTURE_STEPS_TYPE} from '../screens/signUp/SignUp';
 import sizes from '../res/sizes';
-const {width, height} = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
 interface MaskFaceProps {
   style?: StyleProp<ViewStyle>;
@@ -118,14 +109,14 @@ const MaskFace = (props: MaskFaceProps) => {
           cx={width / 2}
           cy={width / 2}
           r={radius}
-          stroke={props.progressColor} // Dynamic color based on progress
+          stroke={props.progressColor}
           strokeWidth={strokeWidth}
           fill="none"
           strokeDasharray={circumference}
-          strokeDashoffset={progressOffset} // Offset for the progress
+          strokeDashoffset={progressOffset}
           strokeLinecap="round"
-          rotation="-90" // Start the progress at the top
-          origin={`${width / 2}, ${width / 2}`} // Rotate around the center
+          rotation="-90"
+          origin={`${width / 2}, ${width / 2}`}
         />
       </Svg>
       <View

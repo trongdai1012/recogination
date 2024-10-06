@@ -7,7 +7,7 @@ export const getListEmployee = async (): Promise<any> => {
     const response = await axiosWithAuth.get(url);
     return response.data;
   } catch (error) {
-    console.error('Error fetching private data', JSON.stringify(error));
+    console.log('Error fetching private data', JSON.stringify(error));
     throw error;
   }
 };

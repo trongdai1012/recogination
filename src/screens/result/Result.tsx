@@ -7,13 +7,15 @@ import {
   Image,
   ScrollView,
   SafeAreaView,
-  Alert,
 } from 'react-native';
 import NavigationService from '../../router/NavigationService';
 import IconBack from '../../assets/svg/icon_back.svg';
 import {ImageDetectFace} from '../signUp/SignUp';
 import {submitRegistrationFace} from '../../api/submitRegistrationFace';
 import {generateUUID} from '../../utils';
+import {useLoading} from '../../context/Loading';
+import {ScreenName} from '../../router/ScreenName';
+import {showToast} from '../../services/showToast';
 
 type ParamType = {
   dataImage: ImageDetectFace[];
@@ -22,47 +24,48 @@ type ParamType = {
 };
 
 export default function Result({route}: any) {
-  console.log('==route==', route);
-
+  const {setLoading} = useLoading();
   const param: ParamType = useMemo(() => {
     const params = route?.params;
     if (!params || !params.dataImage) {
-      Alert.alert('Thất bại', 'No face images found!');
+      showToast('error', 'Không tìm thấy hình ảnh.');
       return {dataImage: []};
     }
     return params;
   }, [route]);
 
   const handleSubmit = async () => {
-    try {
-      const formData = new FormData();
-
-      console.log('==randomId zz==');
-      const randomId = generateUUID();
-      console.log('==param==', param);
-      for (let i = 0; i < param.dataImage.length; i++) {
-        const file = {
-          uri: param.dataImage[i].uri,
-          name: `image_${randomId}_${i}.jpg`,
-          type: 'image/jpeg',
-        };
-        formData.append('file', file);
-        console.log(`Adding file ${i}:`, file);
-      }
-      formData.append('username', param.username);
-      formData.append('tenant', param.tenant);
-
-      console.log('==formData==', formData);
-      const response = await submitRegistrationFace(formData);
-      if (response.status === 200) {
-        Alert.alert('Thành công', 'Face images submitted successfully!');
-      } else {
-        throw new Error('Failed to submit images');
-      }
-    } catch (error) {
-      Alert.alert('Thất bại', 'Unable to submit face images.');
-      console.error('Error submitting images:', error);
+    const formData = new FormData();
+    const randomId = generateUUID();
+    for (let i = 0; i < param.dataImage.length; i++) {
+      const file = {
+        uri: param.dataImage[i].uri,
+        name: `image_${randomId}_${i}.jpg`,
+        type: 'image/jpeg',
+      };
+      formData.append('file', file);
     }
+    formData.append('username', param.username);
+    formData.append('tenant', param.tenant);
+    setLoading(true);
+    submitRegistrationFace(formData)
+      .then(res => {
+        if (res?.result?.username) {
+          NavigationService.navigate(ScreenName.HOME_SCREEN);
+          showToast(
+            'success',
+            `Đăng ký thành công: ${res.result.username}-${res.result.fullName}.`,
+          );
+        } else {
+          showToast('error', 'Đăng ký thất bại, vui lòng thử lại');
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        setLoading(false);
+        showToast('error', 'Đăng ký thất bại, vui lòng thử lại');
+        console.log('Error submitting images:', JSON.stringify(err));
+      });
   };
 
   return (
@@ -75,7 +78,6 @@ export default function Result({route}: any) {
           <IconBack />
         </TouchableOpacity>
         <Text style={styles.txtHeader}>Kết quả</Text>
-        {/* <View style={{width: 24, height: 24}} /> */}
       </View>
       <ScrollView style={styles.listContainer}>
         {param.dataImage.map((item, index) => (
@@ -85,16 +87,14 @@ export default function Result({route}: any) {
             uri={item.uri}
           />
         ))}
-        {/* <View style={{height: 50}} /> */}
       </ScrollView>
       <TouchableOpacity style={styles.buttonSaveToLib} onPress={handleSubmit}>
-        <Text style={styles.txtButtonSaveToLib}>Submit Face</Text>
+        <Text style={styles.txtButtonSaveToLib}>Đăng ký khuôn mặt</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
 }
 
-// Di chuyển RenderItem ra ngoài component chính
 type RenderItemProps = {
   gesture: string;
   uri: string;

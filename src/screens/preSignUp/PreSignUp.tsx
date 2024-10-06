@@ -6,7 +6,6 @@ import {
   SafeAreaView,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
@@ -19,9 +18,7 @@ import {ScreenName} from '../../router/ScreenName';
 import {useAuth} from '../../context/AuthContext';
 import {useLoading} from '../../context/Loading';
 import {getUserDetailByUserName} from '../../api/getUserDetailByUserName';
-// import AutocompleteInput from 'react-native-autocomplete-input';
-// import {useQuery} from 'react-query';
-// import {getListEmployee} from '../../api/getListEmployee';
+import {showToast} from '../../services/showToast';
 
 export default function PreSignUp() {
   const navigation = useNavigation();
@@ -33,23 +30,12 @@ export default function PreSignUp() {
   const {setLoading} = useLoading();
 
   const canNext = useMemo(() => username && fullName, [username, fullName]);
-  // const [query, setQuery] = useState<string>('');
-
-  // const {data, refetch} = useQuery('all-employee', () => getListEmployee(), {
-  //   enabled: false,
-  // });
-
-  // console.log('==data 33==', data);
-
-  // useEffect(() => {
-  //   refetch();
-  // }, [refetch]);
 
   const handleContinue = () => {
     if (!tenant) {
-      Alert.alert(
-        'Lỗi',
-        'Không lấy được thông tin tenant, Vui lòng đăng nhập lại',
+      showToast(
+        'error',
+        'Không tìm thấy thông tin tenant, vui lòng đăng nhập lại.',
       );
       return;
     }
@@ -57,12 +43,9 @@ export default function PreSignUp() {
       setError({
         username: username === '',
       });
-      Alert.alert('Lỗi', 'Vui lòng nhập đầy đủ thông tin');
+      showToast('error', 'Vui lòng nhập đầy đủ thông tin.');
       return;
     }
-
-    console.log('Username:', username);
-    console.log('Tenant:', tenant);
     NavigationService.navigate(ScreenName.SIGN_UP, {
       tenant: tenant,
       username: username,
@@ -81,14 +64,19 @@ export default function PreSignUp() {
     setLoading(true);
     try {
       const data = await getUserDetailByUserName(username);
-      setLoading(false);
+      if (!data.result?.fullName || !data.result?.email) {
+        setLoading(false);
+        return showToast('error', 'Không tim thấy thông tin người dùng');
+      }
       setFullName(data.result.fullName ?? '');
       setEmail(data.result.email ?? '');
+      setLoading(false);
     } catch (err) {
       setLoading(false);
+      console.log('==error on change user name==', JSON.stringify(err));
+      return showToast('error', 'Lấy thông tin người dùng thất bại.');
     }
   };
-  console.log('==canNext==', canNext);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -108,29 +96,6 @@ export default function PreSignUp() {
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <View style={styles.form}>
             <Text style={styles.label}>Username</Text>
-            {/* <AutocompleteInput
-              data={
-                data?.filter((item: any) =>
-                  item.username.toLowerCase().includes(query.toLowerCase()),
-                ) ?? []
-              }
-              defaultValue={query}
-              onChangeText={setQuery}
-              onSelectionChange={onChangeEndUserName}
-              style={[styles.input, error.username && styles.inputError]}
-              flatListProps={{
-                keyExtractor: item => item.username,
-                renderItem: ({item}) => (
-                  <TouchableOpacity
-                    onPress={() => {
-                      setQuery(item.username);
-                      setUsername(item.username);
-                    }}>
-                    <Text>{item.fullName}</Text>
-                  </TouchableOpacity>
-                ),
-              }}
-            /> */}
             <TextInput
               style={[styles.input, error.username && styles.inputError]}
               placeholder="Enter your username"
@@ -147,15 +112,6 @@ export default function PreSignUp() {
                 Vui lòng nhập tài khoản nhân viên
               </Text>
             )}
-            {/* <TextInput
-              style={[styles.input, error.username && styles.inputError]}
-              placeholder="Enter your username"
-              value={username}
-              onChangeText={setUsername}
-              onEndEditing={onChangeEndUserName}
-            />
-             */}
-
             <Text style={styles.label}>Tenant</Text>
             <TextInput
               style={[styles.input, styles.backgroundDisable]}

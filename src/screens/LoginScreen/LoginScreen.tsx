@@ -5,7 +5,6 @@ import {
   TextInput,
   StyleSheet,
   Image,
-  Alert,
   TouchableOpacity,
   Pressable,
   TouchableWithoutFeedback,
@@ -14,6 +13,7 @@ import {
 import {useAuth} from '../../context/AuthContext';
 import {useLoading} from '../../context/Loading';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {showToast} from '../../services/showToast';
 
 export default function LoginScreen() {
   const [tenant, setTenant] = useState<string>('');
@@ -39,7 +39,7 @@ export default function LoginScreen() {
         setRememberMe(true);
       }
     } catch (error) {
-      console.error('Failed to load username:', error);
+      console.log('Failed to load username:', error);
     }
   };
 
@@ -53,7 +53,7 @@ export default function LoginScreen() {
         await AsyncStorage.removeItem('tenantStore');
       }
     } catch (error) {
-      console.error('Failed to save username:', error);
+      console.log('Failed to save username:', error);
     }
   };
 
@@ -64,8 +64,8 @@ export default function LoginScreen() {
       saveUsername();
       setLoading(false);
     } catch (err) {
-      Alert.alert('Đăng nhập thất bại', 'Thông tin đã nhập không chính xác');
       setLoading(false);
+      showToast('error', 'Đăng nhập thất bại, vui lòng kiểm rta lại thông tin');
     }
   };
 
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     height: 24,
   },
   rememberMeContainer: {
-    width: '100%', // Đảm bảo container chiếm hết chiều ngang
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
@@ -204,9 +204,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   loginButton: {
-    width: '100%', // Chiếm hết chiều ngang màn hình
+    width: '100%',
     backgroundColor: '#007AFF',
-    padding: 15, // Tăng kích thước của nút
+    padding: 15,
     borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',

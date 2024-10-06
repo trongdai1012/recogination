@@ -1,50 +1,48 @@
-export type SubmitLoginResponse = {
-  access_token: string;
-  authorizes: string | null;
-  avatar: string | null;
-  code: string;
-  departmentCode: string;
-  departmentRole: string;
-  email: string;
-  expires_in: number;
-  isCustomer: boolean;
-  isStaff: boolean;
-  jti: string;
-  name: string;
-  refresh_token: string;
-  roles: string[];
-  scope: string;
-  tenant: string;
-  token_type: string;
-  username: string;
-};
-
 export type Department = {
   accountNo: number;
   ancestorsCodes: string[];
   childrenNo: number;
   code: string;
-  createdBy: string;
+  createdBy: string | null;
   createdByCustomer: boolean;
-  createdDate: string;
+  createdDate: string | null;
   description: string | null;
-  descriptionTranslations: Record<string, string>;
+  descriptionTranslations: Record<string, any>;
   employeeNo: number;
-  id: string;
-  lastModifiedBy: string;
+  id: string | null;
+  lastModifiedBy: string | null;
   lastModifiedByCustomer: boolean;
-  lastModifiedDate: string;
+  lastModifiedDate: string | null;
   level: number;
   modes: string[];
-  name: string;
-  nameTranslations: Record<string, string>;
+  name: string | null;
+  nameTranslations: Record<string, any>;
   orderNo: number;
   parent: string | null;
-  parentCode: string;
+  parentCode: string | null;
   system: boolean;
   timekeeper: string | null;
   titleCodes: string[];
   titleNo: number;
+};
+
+type Title = {
+  accountNo: number;
+  code: string;
+  createdBy: string | null;
+  createdDate: string | null;
+  departmentCodes: string[] | null;
+  departmentNo: number;
+  departmentTypeCodes: string[] | null;
+  description: string | null;
+  descriptionTranslations: Record<string, any> | null;
+  employeeNo: number;
+  lastModifiedBy: string | null;
+  lastModifiedDate: string | null;
+  name: string | null;
+  nameTranslations: Record<string, any> | null;
+  orderNo: number;
+  system: boolean;
 };
 
 export type Result = {
@@ -52,7 +50,7 @@ export type Result = {
   addressText: string | null;
   allowLoginCMS: boolean;
   ancestorsDepartmentCode: string[];
-  authorizes: string[] | null;
+  authorizes: string | null;
   avatar: string | null;
   bankUser: string | null;
   basicSalary: number | null;
@@ -64,7 +62,7 @@ export type Result = {
   createdByCms: boolean;
   createdDate: string;
   dateLeave: string | null;
-  degrees: string[];
+  degrees: string | null;
   department: Department;
   departmentCode: string;
   departmentModes: string[];
@@ -74,12 +72,13 @@ export type Result = {
   employeeNormal: boolean;
   employeeWorkShift: boolean;
   enabled: boolean;
+  faceEmbeddings: Record<string, any>[];
   firstName: string | null;
   fullName: string;
   gender: string | null;
   historyChangeDepartmentAndTitles: string[];
   historyChangeSalaries: string[];
-  historyLaborContracts: string[] | null;
+  historyLaborContracts: string | null;
   imageCCCD: string | null;
   issueDateCCCD: string | null;
   issuePlaceCCCD: string | null;
@@ -89,7 +88,7 @@ export type Result = {
   lastName: string | null;
   leaveEmployeeInfo: string | null;
   link: string | null;
-  listRole: string[] | null;
+  listRole: string | null;
   maritalStatus: boolean;
   middleName: string | null;
   national: string | null;
@@ -108,15 +107,15 @@ export type Result = {
   status: string | null;
   taxAndInsurance: string | null;
   telegramUser: string | null;
-  title: string | null;
+  title: Title;
   titleCode: string;
   typeMoney: string | null;
   username: string;
   viewTaxAndInsurance: boolean;
 };
 
-export type EmployeeDetailResponse = {
-  code: number | null;
+export type RegistrationApiResponse = {
+  code: string | null;
   count: number;
   error: boolean;
   message: string | null;
