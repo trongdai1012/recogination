@@ -20,7 +20,7 @@ export default function Home() {
           <Text style={styles.btnText}>Đăng ký dữ liệu khuôn mặt</Text>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={styles.btnSecondary}
         onPress={() => {
           NavigationService.navigate(ScreenName.SIGN_IN);
@@ -28,14 +28,14 @@ export default function Home() {
         <View style={styles.contentbtnSecondary}>
           <Text style={styles.btnSecondaryText}>Checkin/Checkout</Text>
         </View>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <TouchableOpacity
         style={styles.btnSecondary}
         onPress={() => {
           NavigationService.navigate(ScreenName.ATTENDANCE);
         }}>
         <View style={styles.contentbtnSecondary}>
-          <Text style={styles.btnSecondaryText}>Chấm công nhanh</Text>
+          <Text style={styles.btnSecondaryText}>Chấm công</Text>
         </View>
       </TouchableOpacity>
       <TouchableOpacity style={styles.btnLogout} onPress={handleLogout}>

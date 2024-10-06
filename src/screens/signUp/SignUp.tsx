@@ -6,6 +6,8 @@ import {
   Dimensions,
   Platform,
   SafeAreaView,
+  TouchableOpacity,
+  Image,
 } from 'react-native';
 import {Face, RNCamera} from 'react-native-camera';
 import FaceDetected from '../../component/FaceDetected';
@@ -13,7 +15,7 @@ import MaskFace from '../../component/MaskFace';
 import ImageEditor from '@react-native-community/image-editor';
 import sizes from '../../res/sizes';
 import _ from 'lodash';
-import {useIsFocused} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import NavigationService from '../../router/NavigationService';
 import {ScreenName} from '../../router/ScreenName';
 import {checkFaceValidSigUp, checkGestureValid} from './service/detectFace';
@@ -33,6 +35,7 @@ type SignUpParamType = {
 };
 
 export default function SignUp({route}: any) {
+  const navigation = useNavigation();
   const [cameraError, setCameraError] = useState<boolean>(false);
   const cameraRef: any = useRef();
   const [faceInfo, setFaceInfo] = useState<Face | undefined>();
@@ -265,6 +268,15 @@ export default function SignUp({route}: any) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Image
+            source={require('../../assets/icons/back.png')}
+            style={styles.backButton}
+          />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Đăng ký dữ liệu khuôn mặt</Text>
+      </View>
       {cameraError ? (
         <Text style={styles.errorText}>Cannot access the camera.</Text>
       ) : (
@@ -317,6 +329,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#e8ecf4',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#fff',
+  },
+  backButton: {
+    width: 18,
+    height: 18,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginLeft: 16,
   },
   camera: {
     width: width,

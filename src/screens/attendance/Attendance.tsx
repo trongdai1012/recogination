@@ -8,6 +8,7 @@ import {
   SafeAreaView,
   FlatList,
   Image,
+  TouchableOpacity,
 } from 'react-native';
 import {Face, RNCamera} from 'react-native-camera';
 import FaceDetected from '../../component/FaceDetected';
@@ -25,6 +26,7 @@ import {useAuth} from '../../context/AuthContext';
 import {useLoading} from '../../context/Loading';
 import {showToast} from '../../services/showToast';
 import dayjs from 'dayjs';
+import {useNavigation} from '@react-navigation/native';
 const {width, height} = Dimensions.get('window');
 
 type ImageInfo = {
@@ -32,6 +34,7 @@ type ImageInfo = {
 };
 
 export default function Attendance() {
+  const navigation = useNavigation();
   const {isLoading, setLoading} = useLoading();
   const cameraRef: any = useRef();
   const [faceInfo, setFaceInfo] = useState<Face | undefined>();
@@ -182,6 +185,15 @@ export default function Attendance() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Image
+            source={require('../../assets/icons/back.png')}
+            style={styles.backButton}
+          />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Chấm công</Text>
+      </View>
       <RNCamera
         style={styles.camera}
         ref={cameraRef}
@@ -231,6 +243,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#e8ecf4',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#fff',
+  },
+  backButton: {
+    width: 18,
+    height: 18,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginLeft: 16,
   },
   camera: {
     width: width,
